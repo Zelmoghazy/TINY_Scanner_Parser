@@ -1,19 +1,13 @@
-#include <ctype.h>
+#include "Scanner.h"
+#include <assert.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdbool.h>
 
-typedef enum {
-    START, INASSIGN, INID, INNUM, INCOMMENT, DONE
-} StateType;
 
-typedef enum {
-    ID, NUM,
-    ASSIGN, EQ, LT, PLUS, MINUS, MULT, DIV,
-    LPAREN, RPAREN, SEMIC,
-    IF, THEN, ELSE, END, REPEAT, UNTIL, READ, WRITE, ERROR, ENDOFILE
-} TokenType;
+Token reservedWords[] = {
+    {IF, "if"},     {THEN, "then"},     {ELSE, "else"},
+    {END, "end"},   {REPEAT, "repeat"}, {UNTIL, "until"},
+    {READ, "read"}, {WRITE, "write"}
+};
 
 const char *tokentostring[] = {
     "IDENTIFIER", "NUMBER",     "ASSIGN",      "EQUAL",
@@ -23,26 +17,6 @@ const char *tokentostring[] = {
     "REPEAT",     "UNTIL",      "READ",        "WRITE",
     "ERROR",      "ENDOFILE"
 };
-
-typedef struct Token {
-    TokenType type;
-    const char* Literal;
-} Token;
-
-typedef struct Lexer {
-    const char* input;           // Source
-    char ch;
-    size_t position;       // Current position in input
-    size_t readPosition;   // after current char
-} Lexer;
-
-Token reservedWords[] = {
-    {IF, "if"},     {THEN, "then"},     {ELSE, "else"},
-    {END, "end"},   {REPEAT, "repeat"}, {UNTIL, "until"},
-    {READ, "read"}, {WRITE, "write"}
-};
-
-void UngetNextCharacter(Lexer* L);
 
 Token getReservedToken(char* str)
 {
@@ -234,9 +208,7 @@ Token NextToken(Lexer* L)
 Lexer* newLexer(char* str)
 {
     Lexer* L = (Lexer *)malloc(sizeof(Lexer));
-    if (L == NULL) {
-        exit(EXIT_FAILURE);
-    }
+    assert(L);
     L->input = str;
     L->position = 0;
     L->readPosition = 0;
@@ -267,7 +239,7 @@ void Terminal(FILE * in, FILE *out)
     }
 }
 
-bool fileScanner(char * path_input, char *path_output)
+bool fileScanner(char *path_input, char *path_output)
 {
     /* Reading */
     FILE *reading_file = fopen(path_input, "r");
@@ -315,3 +287,7 @@ bool fileScanner(char * path_input, char *path_output)
     return true;
 }
 
+void printToken(Token tok)
+{
+    fprintf(stdout,"\n [%s] - %s\n",tokentostring[tok.type],tok.Literal);
+}

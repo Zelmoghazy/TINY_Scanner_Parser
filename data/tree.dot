@@ -1,0 +1,173 @@
+digraph AST {
+node [shape=box, style=filled, color=black, fillcolor=lightgray];
+subgraph cluster_children {
+rankdir=LR;
+node00000132d4e22620 [label="Read: x"];
+subgraph cluster_children00000132d4e22620 {
+rankdir=LR;
+}
+subgraph cluster_siblings00000132d4e22620 {
+rankdir=LR;
+node00000132d4e263d0 [label="If"];
+subgraph cluster_children00000132d4e263d0 {
+rankdir=TB;
+node00000132d4e26470 [label="Op: LESS_THAN"];
+subgraph cluster_children00000132d4e26470 {
+rankdir=TB;
+node00000132d4e26430 [label="Const: 0"];
+subgraph cluster_children00000132d4e26430 {
+rankdir=TB;
+}
+subgraph cluster_siblings00000132d4e26430 {
+rankdir=LR;
+}
+node00000132d4e26470 -> node00000132d4e26430 [dir=down];
+node00000132d4e264d0 [label="Id: x"];
+subgraph cluster_children00000132d4e264d0 {
+rankdir=TB;
+}
+subgraph cluster_siblings00000132d4e264d0 {
+rankdir=LR;
+}
+node00000132d4e26470 -> node00000132d4e264d0 [dir=down];
+}
+subgraph cluster_siblings00000132d4e26470 {
+rankdir=LR;
+}
+node00000132d4e263d0 -> node00000132d4e26470 [dir=down];
+node00000132d4e26570 [label="Assign to: fact"];
+subgraph cluster_children00000132d4e26570 {
+rankdir=TB;
+node00000132d4e265f0 [label="Const: 1"];
+subgraph cluster_children00000132d4e265f0 {
+rankdir=TB;
+}
+subgraph cluster_siblings00000132d4e265f0 {
+rankdir=LR;
+}
+node00000132d4e26570 -> node00000132d4e265f0 [dir=down];
+}
+subgraph cluster_siblings00000132d4e26570 {
+rankdir=LR;
+node00000132d4e26650 [label="Repeat"];
+subgraph cluster_children00000132d4e26650 {
+rankdir=TB;
+node00000132d4e266b0 [label="Assign to: fact"];
+subgraph cluster_children00000132d4e266b0 {
+rankdir=TB;
+node00000132d4e26790 [label="Op: MULTIPLY"];
+subgraph cluster_children00000132d4e26790 {
+rankdir=TB;
+node00000132d4e26730 [label="Id: fact"];
+subgraph cluster_children00000132d4e26730 {
+rankdir=TB;
+}
+subgraph cluster_siblings00000132d4e26730 {
+rankdir=LR;
+}
+node00000132d4e26790 -> node00000132d4e26730 [dir=down];
+node00000132d4e267f0 [label="Id: x"];
+subgraph cluster_children00000132d4e267f0 {
+rankdir=TB;
+}
+subgraph cluster_siblings00000132d4e267f0 {
+rankdir=LR;
+}
+node00000132d4e26790 -> node00000132d4e267f0 [dir=down];
+}
+subgraph cluster_siblings00000132d4e26790 {
+rankdir=LR;
+}
+node00000132d4e266b0 -> node00000132d4e26790 [dir=down];
+}
+subgraph cluster_siblings00000132d4e266b0 {
+rankdir=LR;
+node00000132d4e26e60 [label="Assign to: x"];
+subgraph cluster_children00000132d4e26e60 {
+rankdir=TB;
+node00000132d4e26ee0 [label="Op: MINUS"];
+subgraph cluster_children00000132d4e26ee0 {
+rankdir=TB;
+node00000132d4e26ea0 [label="Id: x"];
+subgraph cluster_children00000132d4e26ea0 {
+rankdir=TB;
+}
+subgraph cluster_siblings00000132d4e26ea0 {
+rankdir=LR;
+}
+node00000132d4e26ee0 -> node00000132d4e26ea0 [dir=down];
+node00000132d4e26f20 [label="Const: 1"];
+subgraph cluster_children00000132d4e26f20 {
+rankdir=TB;
+}
+subgraph cluster_siblings00000132d4e26f20 {
+rankdir=LR;
+}
+node00000132d4e26ee0 -> node00000132d4e26f20 [dir=down];
+}
+subgraph cluster_siblings00000132d4e26ee0 {
+rankdir=LR;
+}
+node00000132d4e26e60 -> node00000132d4e26ee0 [dir=down];
+}
+subgraph cluster_siblings00000132d4e26e60 {
+rankdir=LR;
+}
+node00000132d4e266b0 -> node00000132d4e26e60 [dir=right];
+}
+node00000132d4e26650 -> node00000132d4e266b0 [dir=down];
+node00000132d4e270f0 [label="Op: EQUAL"];
+subgraph cluster_children00000132d4e270f0 {
+rankdir=TB;
+node00000132d4e272f0 [label="Id: x"];
+subgraph cluster_children00000132d4e272f0 {
+rankdir=TB;
+}
+subgraph cluster_siblings00000132d4e272f0 {
+rankdir=LR;
+}
+node00000132d4e270f0 -> node00000132d4e272f0 [dir=down];
+node00000132d4e27530 [label="Const: 0"];
+subgraph cluster_children00000132d4e27530 {
+rankdir=TB;
+}
+subgraph cluster_siblings00000132d4e27530 {
+rankdir=LR;
+}
+node00000132d4e270f0 -> node00000132d4e27530 [dir=down];
+}
+subgraph cluster_siblings00000132d4e270f0 {
+rankdir=LR;
+}
+node00000132d4e26650 -> node00000132d4e270f0 [dir=down];
+}
+subgraph cluster_siblings00000132d4e26650 {
+rankdir=LR;
+node00000132d4e27570 [label="Write"];
+subgraph cluster_children00000132d4e27570 {
+rankdir=TB;
+node00000132d4e27070 [label="Id: fact"];
+subgraph cluster_children00000132d4e27070 {
+rankdir=TB;
+}
+subgraph cluster_siblings00000132d4e27070 {
+rankdir=LR;
+}
+node00000132d4e27570 -> node00000132d4e27070 [dir=down];
+}
+subgraph cluster_siblings00000132d4e27570 {
+rankdir=LR;
+}
+node00000132d4e26650 -> node00000132d4e27570 [dir=right];
+}
+node00000132d4e26570 -> node00000132d4e26650 [dir=right];
+}
+node00000132d4e263d0 -> node00000132d4e26570 [dir=down];
+}
+subgraph cluster_siblings00000132d4e263d0 {
+rankdir=LR;
+}
+node00000132d4e22620 -> node00000132d4e263d0 [dir=right];
+}
+}
+}
