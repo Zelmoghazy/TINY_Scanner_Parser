@@ -17,28 +17,28 @@ Parser *newParser(char *source){
 
 Node * newStatementNode(StatementType kind)
 {
-    Node *t = malloc(sizeof(Node));
-    assert(t);
+    Node *node = malloc(sizeof(Node));
+    assert(node);
     for(size_t i = 0; i < 3; i++){
-        t->children[i] = NULL;
+        node->children[i] = NULL;
     }
-    t->sibling = NULL;
-    t->nodetype = StatementT;
-    t->kind.stmt = kind;
-    return t;
+    node->sibling = NULL;
+    node->nodetype = StatementT;
+    node->kind.stmt = kind;
+    return node;
 }
 
 Node * newExpressionNode(ExpressionType kind)
 {
-    Node *t = malloc(sizeof(Node));
-    assert(t);
+    Node *node = malloc(sizeof(Node));
+    assert(node);
     for(size_t i = 0; i < 3; i++){
-        t->children[i] = NULL;
+        node->children[i] = NULL;
     }
-    t->sibling = NULL;
-    t->nodetype = ExpressionT;
-    t->kind.exp = kind;
-    return t;
+    node->sibling = NULL;
+    node->nodetype = ExpressionT;
+    node->kind.exp = kind;
+    return node;
 }
 
 /** look for a specific token, 
@@ -53,6 +53,7 @@ void match(Parser *parser,TokenType expected)
     }else {
         DEBUG_PRT("Incorrect Token");
         printToken(parser->token);
+        printf("-----------------------\n");
     }
 }
 
@@ -98,23 +99,23 @@ Node* stmt_sequence(Parser *parser)
 
 Node *statement(Parser *parser)
 {
-    Node *t = NULL;
+    Node *node = NULL;
     switch(parser->token.type)
     {
         case IF:
-            t = if_stmt(parser);
+            node = if_stmt(parser);
             break;
         case REPEAT:
-            t = repeat_stmt(parser);
+            node = repeat_stmt(parser);
             break;
         case ID:
-            t = assign_stmt(parser);
+            node = assign_stmt(parser);
             break;
         case READ:
-            t = read_stmt(parser);
+            node = read_stmt(parser);
             break;
         case WRITE:
-            t = write_stmt(parser);
+            node = write_stmt(parser);
             break;
         default:
             DEBUG_PRT("Incorrect token");
@@ -122,141 +123,141 @@ Node *statement(Parser *parser)
             parser->token = NextToken(parser->L);
             break;
     }
-    return t;
+    return node;
 }
 
 /* *************** Statements *************** */
 
 Node *if_stmt(Parser *parser)
 {
-    Node *t = newStatementNode(IfStatement);
+    Node *node = newStatementNode(IfStatement);
     match(parser,IF);
-    t->children[0] = expression(parser);
+    node->children[0] = expression(parser);
     match(parser,THEN);
-    t->children[1] = stmt_sequence(parser);
+    node->children[1] = stmt_sequence(parser);
     if (parser->token.type == ELSE){
         match(parser,ELSE);
-        t->children[2] = stmt_sequence(parser);
+        node->children[2] = stmt_sequence(parser);
     }
     match(parser,END);
-    return t;
+    return node;
 }
 
 Node *repeat_stmt(Parser *parser)
 {
-    Node *t = newStatementNode(RepeatStatement);
+    Node *node = newStatementNode(RepeatStatement);
     match(parser,REPEAT);
-    t->children[0] = stmt_sequence(parser);
+    node->children[0] = stmt_sequence(parser);
     match(parser,UNTIL);
-    t->children[1] = expression(parser);
-    return t;
+    node->children[1] = expression(parser);
+    return node;
 }
 
 Node *assign_stmt(Parser *parser)
 {
-    Node *t = newStatementNode(AssignStatement);
+    Node *node = newStatementNode(AssignStatement);
     if(parser->token.type == ID){
-        t->attr.name = strdup(parser->token.Literal);
+        node->attr.name = strdup(parser->token.Literal);
     }
     match(parser,ID);
     match(parser,ASSIGN);
-    t->children[0] = expression(parser);
-    return t;
+    node->children[0] = expression(parser);
+    return node;
 }
 
 Node *read_stmt(Parser *parser)
 {
-    Node *t = newStatementNode(ReadStatement);
+    Node *node = newStatementNode(ReadStatement);
     match(parser,READ);
     if(parser->token.type == ID){
-        t->attr.name = strdup(parser->token.Literal);
+        node->attr.name = strdup(parser->token.Literal);
     }
     match(parser,ID);
-    return t;
+    return node;
 }
 
 
 Node *write_stmt(Parser *parser)
 {
-    Node *t = newStatementNode(WriteStatement);
+    Node *node = newStatementNode(WriteStatement);
     match(parser,WRITE);
-    t->children[0] = expression(parser);
-    return t;
+    node->children[0] = expression(parser);
+    return node;
 }
 
 /* ********************************************************************* */
 
 Node *expression(Parser *parser)
 {
-    Node *t = simple_exp(parser);
+    Node *node = simple_exp(parser);
     if(parser->token.type == LT ||
        parser->token.type == EQ)
        {
         Node *p = newExpressionNode(OpT);
-        p->children[0] = t;
+        p->children[0] = node;
         p->attr.op = parser->token.type;
-        t = p;
+        node = p;
         match(parser,parser->token.type);
-        t->children[1] = simple_exp(parser);
+        node->children[1] = simple_exp(parser);
     }
-    return t;
+    return node;
 }
 
 Node *simple_exp(Parser *parser)
 {
-    Node *t = term(parser);
+    Node *node = term(parser);
     while((parser->token.type == PLUS) ||
           (parser->token.type == MINUS))
     {
         Node *p = newExpressionNode(OpT);
-        p->children[0] = t;
+        p->children[0] = node;
         p->attr.op = parser->token.type;
-        t = p;
+        node = p;
         match(parser,parser->token.type);
-        t->children[1] = term(parser);
+        node->children[1] = term(parser);
     }          
-    return t;
+    return node;
 }
 
-/* Precedece Levels of expressions */
+/* Precedence Levels of expressions */
 Node *term(Parser *parser)
 {
-    Node *t = factor(parser);
+    Node *node = factor(parser);
     while((parser->token.type == MULT) ||
           (parser->token.type == DIV))
     {
         Node *p = newExpressionNode(OpT);
-        p->children[0] = t;
+        p->children[0] = node;
         p->attr.op = parser->token.type;
-        t = p;
+        node = p;
         match(parser,parser->token.type);
-        t->children[1] = factor(parser);
+        node->children[1] = factor(parser);
     }          
-    return t;
+    return node;
 }
 
 Node *factor(Parser *parser)
 {
-    Node *t = NULL;
+    Node *node = NULL;
     switch(parser->token.type)
     {
         case NUM:
-            t = newExpressionNode(ConstT);
+            node = newExpressionNode(ConstT);
             if(parser->token.type == NUM){
-                t->attr.val = atoi(parser->token.Literal);
+                node->attr.val = atoi(parser->token.Literal);
             }
             match(parser,NUM);
             break;
         case ID:
-            t = newExpressionNode(IdT);
+            node = newExpressionNode(IdT);
             if(parser->token.type == ID){
-                t->attr.name = strdup(parser->token.Literal);
+                node->attr.name = strdup(parser->token.Literal);
             }
             match(parser,ID);
             break;
         case LPAREN:
             match(parser,LPAREN);
-            t = expression(parser);
+            node = expression(parser);
             match(parser,RPAREN);
             break;
         default:
@@ -265,20 +266,20 @@ Node *factor(Parser *parser)
             parser->token = NextToken(parser->L);
             break;
     }
-    return t;
+    return node;
 }
 
 
 Node *parse(Parser *parser)
 {
-    Node *t;
-    t = stmt_sequence(parser);
+    Node *root;
+    root = stmt_sequence(parser);
     // Check for the end of the source file.
     if(parser->token.type != ENDOFILE){
         DEBUG_PRT("End of source file not reached.\n");
     }
     // Return Constructed tree
-    return t;
+    return root;
 }
 
 static size_t indentation = 0; 

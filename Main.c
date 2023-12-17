@@ -24,7 +24,6 @@ int main(int argc, char* argv[])
     else if(!strcmp(argv[2], "-parser"))
     {
         fileParser(filename,"tree.dot");
-        system("dot -Tpng -o output.png tree.dot");
     }
     else
     {
