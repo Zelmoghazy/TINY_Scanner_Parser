@@ -26,13 +26,18 @@ typedef struct Token {
     const char* Literal;
 } Token;
 
+typedef struct TokenList {
+    Token* tokens;
+    size_t currentToken;
+    size_t size;
+} TokenList;
+
 typedef struct Lexer {
     const char* input;           // Source
     char ch;
     size_t position;       // Current position in input
     size_t readPosition;   // after current char
 }Lexer;
-
 
 void UngetNextCharacter(Lexer* L);
 Token getReservedToken(char* str);
@@ -47,6 +52,10 @@ Lexer* newLexer(char* str);
 void Terminal(FILE * in, FILE *out);
 bool fileScanner(char * path_input, char *path_output);
 void printToken(Token tok);
+
+#ifdef TOKEN_LIST
+Token NextToken(TokenList *L);
+#endif
 
 #endif
 

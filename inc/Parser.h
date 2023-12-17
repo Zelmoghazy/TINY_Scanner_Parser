@@ -34,12 +34,6 @@ typedef enum {
     IdT
 }ExpressionType;
 
-typedef enum {
-    Void,
-    Integer,
-    Boolean
-}ExpressionDataType;
-
 typedef struct Node
 {
     struct Node *children[3];
@@ -56,12 +50,11 @@ typedef struct Node
         int val;
         char *name;
     }attr;
-    ExpressionDataType type;
 }Node;
 
 typedef struct Parser{
     Lexer *L;
-    Token token;
+    Token token;  // Lookahead Token
 }Parser;
 
 Node * newStatementNode(StatementType kind);
@@ -90,5 +83,9 @@ void printTree(Node *tree);
 void printDotTree(char *path, Node* tree);
 void printDotNode(FILE* dotFile, Node* tree);
 void printDotEdge(FILE* dotFile, Node* fromNode, Node* toNode);
+
+char* loadfile(char *path);
+
+void fileParser(char *filename, char *dotfile);
 
 #endif 

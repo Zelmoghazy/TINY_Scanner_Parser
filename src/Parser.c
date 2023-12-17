@@ -1,5 +1,6 @@
 #include "Parser.h"
 #include <assert.h>
+#include <corecrt.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -7,10 +8,10 @@
 
 Parser *newParser(char *source){
     Parser *parser = (Parser *)malloc(sizeof(Parser));
-    Lexer *L = newLexer(source);
     assert(parser);
+    Lexer *L = newLexer(source);
     parser->L = L;
-    parser->token = NextToken(L);
+    parser->token = NextToken(L); // Initialize token to first token in input.
     return parser;
 }
 
@@ -37,10 +38,13 @@ Node * newExpressionNode(ExpressionType kind)
     t->sibling = NULL;
     t->nodetype = ExpressionT;
     t->kind.exp = kind;
-    t->type = Void;
     return t;
 }
 
+/** look for a specific token, 
+ * call NextToken if it finds it
+ * and declare error otherwise 
+ **/
 
 void match(Parser *parser,TokenType expected)
 {
@@ -52,10 +56,24 @@ void match(Parser *parser,TokenType expected)
     }
 }
 
+/** Four tokens in this negative test comprise the Follow set for stmt-sequence. 
+ * since if a First symbol is missing, the parse would stop so a check
+ * for token "not" in follow set is effective in recovering from this error
+ *
+ * - Naive Implementation :
+ *
+ *      statement();
+ *       while (token == SEMIC){
+ *           match(SEMIC);
+ *           statement();
+ *       }
+ */
+
 Node* stmt_sequence(Parser *parser)
 {
     Node *t = statement(parser);
     Node *p = t;
+    /* Dont depend on presence of semicolon */
     while((parser->token.type != ENDOFILE) &&
           (parser->token.type != END)      &&
           (parser->token.type != ELSE)     &&
@@ -103,11 +121,11 @@ Node *statement(Parser *parser)
             printToken(parser->token);
             parser->token = NextToken(parser->L);
             break;
-    }/* end case */
-
+    }
     return t;
 }
 
+/* *************** Statements *************** */
 
 Node *if_stmt(Parser *parser)
 {
@@ -166,6 +184,8 @@ Node *write_stmt(Parser *parser)
     return t;
 }
 
+/* ********************************************************************* */
+
 Node *expression(Parser *parser)
 {
     Node *t = simple_exp(parser);
@@ -198,6 +218,7 @@ Node *simple_exp(Parser *parser)
     return t;
 }
 
+/* Precedece Levels of expressions */
 Node *term(Parser *parser)
 {
     Node *t = factor(parser);
@@ -252,26 +273,25 @@ Node *parse(Parser *parser)
 {
     Node *t;
     t = stmt_sequence(parser);
+    // Check for the end of the source file.
     if(parser->token.type != ENDOFILE){
-        DEBUG_PRT("Code ends before file ends\n");
+        DEBUG_PRT("End of source file not reached.\n");
     }
+    // Return Constructed tree
     return t;
 }
 
-static int indentno = 0; 
-
-#define IDENT indentno+=2
-#define UNIDENT indentno -=2
+static size_t indentation = 0; 
 
 static void printSpaces(void)
 {
-    for(size_t i = 0; i < indentno; i++){
+    for(size_t i = 0; i < indentation; i++){
       fprintf(stdout, " ");
     }
 }
 
 void printTree(Node *tree){
-    IDENT;
+    indentation+=2;
     while(tree != NULL)
     {
         printSpaces();
@@ -320,11 +340,10 @@ void printTree(Node *tree){
         }
         tree = tree->sibling;
     }
-    UNIDENT;
+    indentation -=2;
 }
 
 /* DOT Notation Stuff */
-
 void printDotTree(char *path, Node* tree) {
     FILE *dotFile = fopen(path, "w");
     fprintf(dotFile, "digraph AST {\n");
@@ -414,4 +433,42 @@ void printDotEdge(FILE* dotFile, Node* fromNode, Node* toNode) {
         // Children link, make it downward
         fprintf(dotFile, "node%p -> node%p [dir=down];\n", (void*)fromNode, (void*)toNode);
     }
+}
+
+char* loadfile(char *path)
+{
+    /* Reading */
+    FILE *reading_file = fopen(path, "r");
+    if (!reading_file){
+        fprintf(stderr, "Couldnt load reading_file");
+        return NULL;
+    }
+    /* Doesnt return accurate size */
+    fseek(reading_file, 0, SEEK_END);
+    size_t size = (size_t)ftell(reading_file);
+    fseek(reading_file, 0, SEEK_SET);
+
+    char *source = (char *)malloc(sizeof(char) * size + 2);
+    assert(source);
+    size = 0;
+    int ch = fgetc(reading_file);
+    /* read input character by character */
+    while (ch!=EOF)
+    {
+        source[size++]=(char)ch;
+        ch = fgetc(reading_file);
+    }
+    source[size++] = '\n';     // Always insert a newline at the end.
+    source[size]   = '\0';
+    fclose(reading_file);
+
+    return source;
+}
+
+void fileParser(char *filename, char *dotfile){
+    char *source = loadfile(filename);
+    Parser *parser = newParser(source);
+    Node *syntaxTree = parse(parser);
+    printDotTree(dotfile,syntaxTree);
+    printTree(syntaxTree);
 }

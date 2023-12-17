@@ -1,6 +1,8 @@
 #include "Scanner.h"
 #include <assert.h>
+#include <corecrt.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 
 Token reservedWords[] = {
@@ -280,7 +282,7 @@ bool fileScanner(char *path_input, char *path_output)
             printf("\n");
             break;
         }
-        fprintf(writing_file,"\n [%s] - %s\n",tokentostring[tok.type],tok.Literal);
+        fprintf(writing_file,"[%s],%s\n",tokentostring[tok.type],tok.Literal);
     }
     fclose(writing_file);
     free(source);
@@ -291,3 +293,58 @@ void printToken(Token tok)
 {
     fprintf(stdout,"\n [%s] - %s\n",tokentostring[tok.type],tok.Literal);
 }
+
+#ifdef TOKEN_LIST
+TokenList *newTokenList(size_t size)
+{
+    TokenList * toklist = (TokenList *) malloc(sizeof(TokenList));
+    assert(toklist);
+    toklist->tokens = (Token*)malloc(size * sizeof(Token));
+    assert(toklist->tokens);
+    toklist->size = size;
+    toklist->currentToken = 0;
+    return  toklist;
+}
+
+TokenType getTokenType(const char* tokenTypeStr) {
+    if (strcmp(tokenTypeStr, "[READ]") == 0) return READ;
+    if (strcmp(tokenTypeStr, "[IDENTIFIER]") == 0) return IDENTIFIER;
+    if (strcmp(tokenTypeStr, "[SEMICOLON]") == 0) return SEMICOLON;
+    if (strcmp(tokenTypeStr, "[IF]") == 0) return IF;
+
+    return ERROR;
+}
+
+TokenList *filetoTokenList(char *path)
+{
+    FILE* file = fopen(path, "r");
+    assert(file);
+
+    size_t nooftokens = 0;
+    int ch;
+    static size_t i = 0; 
+
+    while ((ch = fgetc(file)) != EOF) {
+        if (ch == '\n') {
+            nooftokens++;
+        }
+    }
+    TokenList *tokenList = newTokenList(nooftokens+1); 
+    
+    char line[256];
+    while (fgets(line, sizeof(line), file)) {
+        char* tokenTypeStr = strtok(line, ",");
+        char* tokenLiteral = strtok(NULL, "\n");
+
+        tokenList->tokens[i].type = getTokenType(tokenTypeStr);
+        tokenList->tokens[i].Literal = strdup(tokenLiteral);
+        i++;
+    }
+    fclose(file);
+}
+
+Token NextToken(TokenList *L)
+{
+    return L->tokens[L->currentToken++];
+}
+#endif
