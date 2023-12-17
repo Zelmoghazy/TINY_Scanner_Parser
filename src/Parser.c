@@ -360,6 +360,7 @@ void printDotTree(char *path, Node* tree) {
     fprintf(dotFile, "}\n");
 }
 
+
 void printDotNode(FILE* dotFile, Node* tree) {
     fprintf(dotFile, "node%p [label=\"", (void*)tree);
 
@@ -399,11 +400,18 @@ void printDotNode(FILE* dotFile, Node* tree) {
                 fprintf(dotFile, "Error Expression node");
                 break;
         }
-    } else {
-        fprintf(dotFile, "Unknown node type");
     }
 
-    fprintf(dotFile, "\"];\n");
+    fprintf(dotFile, "\", shape=");
+    
+    // Set shape based on the node type
+    if (tree->nodetype == StatementT) {
+        fprintf(dotFile, "rectangle");
+    } else if (tree->nodetype == ExpressionT) {
+        fprintf(dotFile, "oval");
+    }
+
+    fprintf(dotFile, "];\n");
 
     // Create a subgraph for children (downward layout)
     fprintf(dotFile, "subgraph cluster_children%p {\n", (void*)tree);
@@ -426,12 +434,12 @@ void printDotNode(FILE* dotFile, Node* tree) {
     fprintf(dotFile, "}\n");
 }
 
+
+
 void printDotEdge(FILE* dotFile, Node* fromNode, Node* toNode) {
     if (fromNode->sibling == toNode) {
-        // Sibling link, make it to the right
         fprintf(dotFile, "node%p -> node%p [dir=right];\n", (void*)fromNode, (void*)toNode);
     } else {
-        // Children link, make it downward
         fprintf(dotFile, "node%p -> node%p [dir=down];\n", (void*)fromNode, (void*)toNode);
     }
 }
@@ -466,7 +474,8 @@ char* loadfile(char *path)
     return source;
 }
 
-void fileParser(char *filename, char *dotfile){
+void fileParser(char *filename, char *dotfile)
+{
     char *source = loadfile(filename);
     Parser *parser = newParser(source);
     Node *syntaxTree = parse(parser);

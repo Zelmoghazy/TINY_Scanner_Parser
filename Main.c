@@ -19,11 +19,11 @@ int main(int argc, char* argv[])
 
     if(!strcmp(argv[2], "-scanner"))
     {
-        fileScanner(filename, "out.txt");
+        fileScanner(filename, "./data/out.txt");
     }
     else if(!strcmp(argv[2], "-parser"))
     {
-        fileParser(filename,"tree.dot");
+        fileParser(filename,"./data/tree.dot");
     }
     else
     {

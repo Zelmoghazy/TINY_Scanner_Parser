@@ -1,64 +1,31 @@
-
- [READ] - read
-
- [IDENTIFIER] - x
-
- [SEMICOLON] - ;
-
- [IF] - if
-
- [NUMBER] - 0
-
- [LESS_THAN] - <
-
- [IDENTIFIER] - x
-
- [THEN] - then
-
- [IDENTIFIER] - fact
-
- [ASSIGN] - :=
-
- [NUMBER] - 1
-
- [SEMICOLON] - ;
-
- [REPEAT] - repeat
-
- [IDENTIFIER] - fact
-
- [ASSIGN] - :=
-
- [IDENTIFIER] - fact
-
- [MULTIPLY] - *
-
- [IDENTIFIER] - x
-
- [SEMICOLON] - ;
-
- [IDENTIFIER] - x
-
- [ASSIGN] - :=
-
- [IDENTIFIER] - x
-
- [MINUS] - -
-
- [NUMBER] - 1
-
- [UNTIL] - until
-
- [IDENTIFIER] - x
-
- [EQUAL] - =
-
- [NUMBER] - 0
-
- [SEMICOLON] - ;
-
- [WRITE] - write
-
- [IDENTIFIER] - fact
-
- [END] - end
+[READ],read
+[IDENTIFIER],x
+[SEMICOLON],;
+[IF],if
+[NUMBER],0
+[LESS_THAN],<
+[IDENTIFIER],x
+[THEN],then
+[IDENTIFIER],fact
+[ASSIGN],:=
+[NUMBER],1
+[REPEAT],repeat
+[IDENTIFIER],fact
+[ASSIGN],:=
+[IDENTIFIER],fact
+[MULTIPLY],*
+[IDENTIFIER],x
+[SEMICOLON],;
+[IDENTIFIER],x
+[ASSIGN],:=
+[IDENTIFIER],x
+[MINUS],-
+[NUMBER],1
+[UNTIL],until
+[IDENTIFIER],x
+[EQUAL],=
+[NUMBER],0
+[SEMICOLON],;
+[WRITE],write
+[IDENTIFIER],fact
+[END],end
