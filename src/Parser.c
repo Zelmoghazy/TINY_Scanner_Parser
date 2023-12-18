@@ -16,10 +16,8 @@ Parser *newParser(char *filename, bool choice){
         parser->src.L = L;
         parser->token = NextToken(L); // Initialize token to first token in input.
         parser->choice = choice;
-        parser->src.TL = NULL;
     }else{
         parser->src.TL = filetoTokenList(filename);
-        parser->src.L = NULL;
         parser->token = NextTokenList(parser->src.TL);
         parser->choice = choice;
     }
@@ -523,6 +521,7 @@ char* loadfile(char *path)
 void fileParser(char *filename, char *dotfile, bool choice)
 {
     Parser *parser = newParser(filename,choice);
+    printTokenList(parser->src.TL);
     Node *syntaxTree = parse(parser);
     printDotTree(dotfile,syntaxTree);
     printTree(syntaxTree);

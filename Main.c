@@ -13,7 +13,6 @@ int main(int argc, char* argv[])
         DEBUG_PRT("Please enter filename and -scanner/-parser -toklist/-lexer.\n");
         exit(EXIT_FAILURE);
     }
-    
     char filename[256]; // Maximum file name on windows probably too much
     strcpy(filename,argv[1]);
 

@@ -352,6 +352,9 @@ TokenList *filetoTokenList(char *path)
             nooftokens++;
         }
     }
+    /* Revert file pointer */
+    fseek(file, 0, SEEK_SET);
+
     TokenList *tokenList = newTokenList(nooftokens+1); 
     
     char line[256];
@@ -373,7 +376,7 @@ TokenList *filetoTokenList(char *path)
 
 Token NextTokenList(TokenList *L)
 {
-    assert(L->currentToken <= L->size);
+    assert(L->currentToken < L->size);
     return L->tokens[L->currentToken++];
 }
 
