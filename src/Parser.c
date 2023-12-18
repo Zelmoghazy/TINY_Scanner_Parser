@@ -521,8 +521,10 @@ char* loadfile(char *path)
 void fileParser(char *filename, char *dotfile, bool choice)
 {
     Parser *parser = newParser(filename,choice);
-    printTokenList(parser->src.TL);
     Node *syntaxTree = parse(parser);
+    if(!choice){
+        printTokenList(parser->src.TL);
+    }
     printDotTree(dotfile,syntaxTree);
     printTree(syntaxTree);
 }
