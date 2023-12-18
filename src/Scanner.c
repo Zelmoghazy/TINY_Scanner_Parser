@@ -39,6 +39,12 @@ bool iswhitespace(char ch)
         return false;
     }
 }
+char *chartostr(char ch){
+    char *res = malloc(sizeof(char)*2);
+    res[0] = ch;
+    res[1] = '\0';
+    return res;
+}
 
 void getNextCharacter(Lexer* L) 
 {
@@ -158,7 +164,7 @@ Token NextToken(Lexer* L)
                     break;
                 default:
                     currentToken.type = ERROR;
-                    currentToken.Literal = "\0";
+                    currentToken.Literal = chartostr(L->ch);
                     break;
                 }
             }

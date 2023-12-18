@@ -11,7 +11,7 @@
 #define DEBUG_PRT(fmt, ...)                                                                                  \
     do{                                                                                                      \
         if(DEBUG)                                                                                            \
-            fprintf(stderr, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__ __VA_OPT__(,) __VA_ARGS__);     \
+            fprintf(stdout, "%s:%d:%s(): " fmt, __FILE__, __LINE__, __func__ __VA_OPT__(,) __VA_ARGS__);     \
     }while(0)
 
 

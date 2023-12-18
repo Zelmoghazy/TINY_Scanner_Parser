@@ -9,6 +9,7 @@
 [IDENTIFIER],fact
 [ASSIGN],:=
 [NUMBER],1
+[SEMICOLON],;
 [REPEAT],repeat
 [IDENTIFIER],fact
 [ASSIGN],:=

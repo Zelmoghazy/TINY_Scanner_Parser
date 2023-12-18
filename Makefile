@@ -1,7 +1,7 @@
 CC=gcc
 
 OPT=-O0
-DBG=-g
+DBG=-g -gdwarf-2
 WARNINGS=-Wall -Wextra -Wsign-conversion -Wconversion
 DEPFLAGS=-MP -MD
 

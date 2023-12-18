@@ -120,6 +120,7 @@ Node *statement(Parser *parser)
         default:
             DEBUG_PRT("Incorrect token");
             printToken(parser->token);
+            printf("-----------------------\n");
             parser->token = NextToken(parser->L);
             break;
     }
@@ -263,6 +264,8 @@ Node *factor(Parser *parser)
         default:
             DEBUG_PRT("Incorrect Token");
             printToken(parser->token);
+            printf("-----------------------\n");
+            
             parser->token = NextToken(parser->L);
             break;
     }
