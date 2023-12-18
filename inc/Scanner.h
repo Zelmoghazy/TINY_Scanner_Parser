@@ -53,9 +53,13 @@ void Terminal(FILE * in, FILE *out);
 bool fileScanner(char * path_input, char *path_output);
 void printToken(Token tok);
 
-#ifdef TOKEN_LIST
-Token NextToken(TokenList *L);
-#endif
+
+
+TokenList *newTokenList(size_t size);
+TokenType getTokenType(const char* tokenTypeStr);
+TokenList *filetoTokenList(char *path);
+Token NextTokenList(TokenList *L);
+void printTokenList(TokenList *L);
 
 #endif
 

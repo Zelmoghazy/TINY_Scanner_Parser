@@ -9,8 +9,8 @@
 
 int main(int argc, char* argv[])
 {
-    if(argc != 3){
-        DEBUG_PRT("Please enter filename and -scanner/-parser.\n");
+    if(argc != 4){
+        DEBUG_PRT("Please enter filename and -scanner/-parser -toklist/-lexer.\n");
         exit(EXIT_FAILURE);
     }
     
@@ -23,7 +23,13 @@ int main(int argc, char* argv[])
     }
     else if(!strcmp(argv[2], "-parser"))
     {
-        fileParser(filename,"./data/tree.dot");
+        if(!strcmp(argv[3], "-lexer")){
+            fileParser(filename,"./data/tree.dot",true);
+        }else if(!strcmp(argv[3], "-toklist")){
+            fileParser(filename,"./data/tree.dot",false);
+        }else{
+            DEBUG_PRT("Please specify -toklist/-lexer..\n");
+        }
     }
     else
     {

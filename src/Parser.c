@@ -1,17 +1,28 @@
 #include "Parser.h"
+#include "Scanner.h"
 #include <assert.h>
 #include <corecrt.h>
-#include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-Parser *newParser(char *source){
+Parser *newParser(char *filename, bool choice){
     Parser *parser = (Parser *)malloc(sizeof(Parser));
     assert(parser);
-    Lexer *L = newLexer(source);
-    parser->L = L;
-    parser->token = NextToken(L); // Initialize token to first token in input.
+    if(choice){
+        char *source = loadfile(filename);
+        Lexer *L = newLexer(source);
+        parser->src.L = L;
+        parser->token = NextToken(L); // Initialize token to first token in input.
+        parser->choice = choice;
+        parser->src.TL = NULL;
+    }else{
+        parser->src.TL = filetoTokenList(filename);
+        parser->src.L = NULL;
+        parser->token = NextTokenList(parser->src.TL);
+        parser->choice = choice;
+    }
     return parser;
 }
 
@@ -49,7 +60,11 @@ Node * newExpressionNode(ExpressionType kind)
 void match(Parser *parser,TokenType expected)
 {
     if(parser->token.type == expected){
-        parser->token = NextToken(parser->L);
+        if(parser->choice){
+            parser->token = NextToken(parser->src.L);
+        }else{
+            parser->token = NextTokenList(parser->src.TL);
+        }
     }else {
         DEBUG_PRT("Incorrect Token");
         printToken(parser->token);
@@ -72,28 +87,29 @@ void match(Parser *parser,TokenType expected)
 
 Node* stmt_sequence(Parser *parser)
 {
-    Node *t = statement(parser);
-    Node *p = t;
+    /* May return null in case of error token */
+    Node *node = statement(parser);
+    Node *temp = node;
     /* Dont depend on presence of semicolon */
     while((parser->token.type != ENDOFILE) &&
           (parser->token.type != END)      &&
           (parser->token.type != ELSE)     &&
           (parser->token.type != UNTIL))
     {
-        Node *q;
+        Node *next;
         match(parser,SEMIC);
-        q = statement(parser);
-        if(q != NULL)
+        next = statement(parser);
+        if(next != NULL)
         {
-            if(t == NULL){
-                t = p = q;
+            if(node == NULL){
+                node = temp = next;
             }else{
-                p->sibling = q;
-                p = q;
+                temp->sibling = next;
+                temp = next;
             }
         }
     }
-    return t;
+    return node;
 }
 
 
@@ -121,7 +137,11 @@ Node *statement(Parser *parser)
             DEBUG_PRT("Incorrect token");
             printToken(parser->token);
             printf("-----------------------\n");
-            parser->token = NextToken(parser->L);
+            if(parser->choice){
+                parser->token = NextToken(parser->src.L);
+            }else{
+                parser->token = NextTokenList(parser->src.TL);
+            }
             break;
     }
     return node;
@@ -188,21 +208,36 @@ Node *write_stmt(Parser *parser)
 
 /* ********************************************************************* */
 
+
+/*
+                                    (Operator)
+                                  /           \
+    (simple-exp)  or  (simple-exp)             (simple-exp)
+
+ */
+
 Node *expression(Parser *parser)
 {
     Node *node = simple_exp(parser);
     if(parser->token.type == LT ||
        parser->token.type == EQ)
        {
-        Node *p = newExpressionNode(OpT);
-        p->children[0] = node;
-        p->attr.op = parser->token.type;
-        node = p;
+        Node *temp = newExpressionNode(OpT);
+        temp->children[0] = node;
+        temp->attr.op = parser->token.type;
+        node = temp;
         match(parser,parser->token.type);
         node->children[1] = simple_exp(parser);
     }
     return node;
 }
+
+/*
+                                    (Operator)
+                                  /           \
+    (term)        or        (term)             (term)
+
+ */
 
 Node *simple_exp(Parser *parser)
 {
@@ -210,16 +245,22 @@ Node *simple_exp(Parser *parser)
     while((parser->token.type == PLUS) ||
           (parser->token.type == MINUS))
     {
-        Node *p = newExpressionNode(OpT);
-        p->children[0] = node;
-        p->attr.op = parser->token.type;
-        node = p;
+        Node *temp = newExpressionNode(OpT);
+        temp->children[0] = node;
+        temp->attr.op = parser->token.type;
+        node = temp;
         match(parser,parser->token.type);
         node->children[1] = term(parser);
     }          
     return node;
 }
 
+/*
+                                    (Operator)
+                                  /           \
+    (factor)        or    (factor)             (factor)
+
+ */
 /* Precedence Levels of expressions */
 Node *term(Parser *parser)
 {
@@ -227,10 +268,10 @@ Node *term(Parser *parser)
     while((parser->token.type == MULT) ||
           (parser->token.type == DIV))
     {
-        Node *p = newExpressionNode(OpT);
-        p->children[0] = node;
-        p->attr.op = parser->token.type;
-        node = p;
+        Node *temp = newExpressionNode(OpT);
+        temp->children[0] = node;
+        temp->attr.op = parser->token.type;
+        node = temp;
         match(parser,parser->token.type);
         node->children[1] = factor(parser);
     }          
@@ -265,13 +306,15 @@ Node *factor(Parser *parser)
             DEBUG_PRT("Incorrect Token");
             printToken(parser->token);
             printf("-----------------------\n");
-            
-            parser->token = NextToken(parser->L);
+            if(parser->choice){
+                parser->token = NextToken(parser->src.L);
+            }else{
+                parser->token = NextTokenList(parser->src.TL);
+            }
             break;
     }
     return node;
 }
-
 
 Node *parse(Parser *parser)
 {
@@ -477,10 +520,9 @@ char* loadfile(char *path)
     return source;
 }
 
-void fileParser(char *filename, char *dotfile)
+void fileParser(char *filename, char *dotfile, bool choice)
 {
-    char *source = loadfile(filename);
-    Parser *parser = newParser(source);
+    Parser *parser = newParser(filename,choice);
     Node *syntaxTree = parse(parser);
     printDotTree(dotfile,syntaxTree);
     printTree(syntaxTree);

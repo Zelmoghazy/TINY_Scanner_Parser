@@ -300,7 +300,6 @@ void printToken(Token tok)
     fprintf(stdout,"\n [%s] - %s\n",tokentostring[tok.type],tok.Literal);
 }
 
-#ifdef TOKEN_LIST
 TokenList *newTokenList(size_t size)
 {
     TokenList * toklist = (TokenList *) malloc(sizeof(TokenList));
@@ -313,13 +312,31 @@ TokenList *newTokenList(size_t size)
 }
 
 TokenType getTokenType(const char* tokenTypeStr) {
-    if (strcmp(tokenTypeStr, "[READ]") == 0) return READ;
-    if (strcmp(tokenTypeStr, "[IDENTIFIER]") == 0) return IDENTIFIER;
-    if (strcmp(tokenTypeStr, "[SEMICOLON]") == 0) return SEMICOLON;
+    if (strcmp(tokenTypeStr, "[IDENTIFIER]") == 0) return ID;
+    if (strcmp(tokenTypeStr, "[NUMBER]") == 0) return NUM;
+    if (strcmp(tokenTypeStr, "[ASSIGN]") == 0) return ASSIGN;
+    if (strcmp(tokenTypeStr, "[EQUAL]") == 0) return EQ;
+    if (strcmp(tokenTypeStr, "[LESS_THAN]") == 0) return LT;
+    if (strcmp(tokenTypeStr, "[PLUS]") == 0) return PLUS;
+    if (strcmp(tokenTypeStr, "[MINUS]") == 0) return MINUS;
+    if (strcmp(tokenTypeStr, "[MULTIPLY]") == 0) return MULT;
+    if (strcmp(tokenTypeStr, "[DIVISION]") == 0) return DIV;
+    if (strcmp(tokenTypeStr, "[LEFT_PAREN]") == 0) return LPAREN;
+    if (strcmp(tokenTypeStr, "[RIGHT_PAREN]") == 0) return RPAREN;
+    if (strcmp(tokenTypeStr, "[SEMICOLON]") == 0) return SEMIC;
     if (strcmp(tokenTypeStr, "[IF]") == 0) return IF;
-
-    return ERROR;
+    if (strcmp(tokenTypeStr, "[THEN]") == 0) return THEN;
+    if (strcmp(tokenTypeStr, "[ELSE]") == 0) return ELSE;
+    if (strcmp(tokenTypeStr, "[END]") == 0) return END;
+    if (strcmp(tokenTypeStr, "[REPEAT]") == 0) return REPEAT;
+    if (strcmp(tokenTypeStr, "[UNTIL]") == 0) return UNTIL;
+    if (strcmp(tokenTypeStr, "[READ]") == 0) return READ;
+    if (strcmp(tokenTypeStr, "[WRITE]") == 0) return WRITE;
+    if (strcmp(tokenTypeStr, "[ERROR]") == 0) return ERROR;
+    if (strcmp(tokenTypeStr, "[ENDOFILE]") == 0) return ENDOFILE;
+    return ERROR;  
 }
+
 
 TokenList *filetoTokenList(char *path)
 {
@@ -346,11 +363,23 @@ TokenList *filetoTokenList(char *path)
         tokenList->tokens[i].Literal = strdup(tokenLiteral);
         i++;
     }
+    tokenList->tokens[i].type = ENDOFILE;
+    tokenList->tokens[i].Literal = "\0";
+
     fclose(file);
+
+    return tokenList;
 }
 
-Token NextToken(TokenList *L)
+Token NextTokenList(TokenList *L)
 {
+    assert(L->currentToken <= L->size);
     return L->tokens[L->currentToken++];
 }
-#endif
+
+void printTokenList(TokenList *L)
+{
+    for(size_t i = 0; i < L->size; i++){
+        printToken(L->tokens[i]);
+    }
+}

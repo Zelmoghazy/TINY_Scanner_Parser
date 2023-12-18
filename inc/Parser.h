@@ -53,8 +53,12 @@ typedef struct Node
 }Node;
 
 typedef struct Parser{
-    Lexer *L;
-    Token token;  // Lookahead Token
+    union{
+        TokenList *TL;
+        Lexer *L;
+    }src;
+    Token token;    // Lookahead Token
+    bool choice;    // True : Lexer , False : TokenList
 }Parser;
 
 Node * newStatementNode(StatementType kind);
@@ -75,7 +79,7 @@ Node* factor(Parser *parser);
 
 Node *parse(Parser *parser);
 
-Parser *newParser(char *source);
+Parser *newParser(char *filename,bool choice);
 
 static void printSpaces(void);
 void printTree(Node *tree);
@@ -86,6 +90,6 @@ void printDotEdge(FILE* dotFile, Node* fromNode, Node* toNode);
 
 char* loadfile(char *path);
 
-void fileParser(char *filename, char *dotfile);
+void fileParser(char *filename, char *dotfile, bool choice);
 
 #endif 
