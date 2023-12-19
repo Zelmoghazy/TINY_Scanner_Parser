@@ -36,3 +36,9 @@
 ## Usage
 1. Compile using either the `Makefile` or included batch file `run.bat`
 2. Open `GUI.exe`
+
+<p align="center">
+  <img src="./Images/GUI.png"
+       width="100%" 
+       style="border-radius: 30px;"/>
+</p>
