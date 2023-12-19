@@ -12,11 +12,11 @@ Token reservedWords[] = {
 };
 
 const char *tokentostring[] = {
-    "IDENTIFIER", "NUMBER",     "ASSIGN",      "EQUAL",
-    "LESS_THAN",  "PLUS",       "MINUS",       "MULTIPLY",
-    "DIVISION",   "LEFT_PAREN", "RIGHT_PAREN", "SEMICOLON",
-    "IF",         "THEN",       "ELSE",        "END",
-    "REPEAT",     "UNTIL",      "READ",        "WRITE",
+    "IDENTIFIER", "NUMBER",     "ASSIGN",       "EQUAL",
+    "LESSTHAN",   "PLUS",       "MINUS",        "MULT",
+    "DIV",        "OPENBRACKET","CLOSEDBRACKET","SEMICOLON",
+    "IF",         "THEN",       "ELSE",         "END",
+    "REPEAT",     "UNTIL",      "READ",         "WRITE",
     "ERROR",      "ENDOFILE"
 };
 
@@ -288,7 +288,7 @@ bool fileScanner(char *path_input, char *path_output)
             printf("\n");
             break;
         }
-        fprintf(writing_file,"[%s],%s\n",tokentostring[tok.type],tok.Literal);
+        fprintf(writing_file,"%s,%s\n",tok.Literal,tokentostring[tok.type]);
     }
     fclose(writing_file);
     free(source);
@@ -312,28 +312,28 @@ TokenList *newTokenList(size_t size)
 }
 
 TokenType getTokenType(const char* tokenTypeStr) {
-    if (strcmp(tokenTypeStr, "[IDENTIFIER]") == 0) return ID;
-    if (strcmp(tokenTypeStr, "[NUMBER]") == 0) return NUM;
-    if (strcmp(tokenTypeStr, "[ASSIGN]") == 0) return ASSIGN;
-    if (strcmp(tokenTypeStr, "[EQUAL]") == 0) return EQ;
-    if (strcmp(tokenTypeStr, "[LESS_THAN]") == 0) return LT;
-    if (strcmp(tokenTypeStr, "[PLUS]") == 0) return PLUS;
-    if (strcmp(tokenTypeStr, "[MINUS]") == 0) return MINUS;
-    if (strcmp(tokenTypeStr, "[MULTIPLY]") == 0) return MULT;
-    if (strcmp(tokenTypeStr, "[DIVISION]") == 0) return DIV;
-    if (strcmp(tokenTypeStr, "[LEFT_PAREN]") == 0) return LPAREN;
-    if (strcmp(tokenTypeStr, "[RIGHT_PAREN]") == 0) return RPAREN;
-    if (strcmp(tokenTypeStr, "[SEMICOLON]") == 0) return SEMIC;
-    if (strcmp(tokenTypeStr, "[IF]") == 0) return IF;
-    if (strcmp(tokenTypeStr, "[THEN]") == 0) return THEN;
-    if (strcmp(tokenTypeStr, "[ELSE]") == 0) return ELSE;
-    if (strcmp(tokenTypeStr, "[END]") == 0) return END;
-    if (strcmp(tokenTypeStr, "[REPEAT]") == 0) return REPEAT;
-    if (strcmp(tokenTypeStr, "[UNTIL]") == 0) return UNTIL;
-    if (strcmp(tokenTypeStr, "[READ]") == 0) return READ;
-    if (strcmp(tokenTypeStr, "[WRITE]") == 0) return WRITE;
-    if (strcmp(tokenTypeStr, "[ERROR]") == 0) return ERROR;
-    if (strcmp(tokenTypeStr, "[ENDOFILE]") == 0) return ENDOFILE;
+    if (strcmp(tokenTypeStr, "IDENTIFIER") == 0) return ID;
+    if (strcmp(tokenTypeStr, "NUMBER") == 0) return NUM;
+    if (strcmp(tokenTypeStr, "ASSIGN") == 0) return ASSIGN;
+    if (strcmp(tokenTypeStr, "EQUAL") == 0) return EQ;
+    if (strcmp(tokenTypeStr, "LESSTHAN") == 0) return LT;
+    if (strcmp(tokenTypeStr, "PLUS") == 0) return PLUS;
+    if (strcmp(tokenTypeStr, "MINUS") == 0) return MINUS;
+    if (strcmp(tokenTypeStr, "MULT") == 0) return MULT;
+    if (strcmp(tokenTypeStr, "DIV") == 0) return DIV;
+    if (strcmp(tokenTypeStr, "OPENBRACKET") == 0) return LPAREN;
+    if (strcmp(tokenTypeStr, "CLOSEDBRACKET") == 0) return RPAREN;
+    if (strcmp(tokenTypeStr, "SEMICOLON") == 0) return SEMIC;
+    if (strcmp(tokenTypeStr, "IF") == 0) return IF;
+    if (strcmp(tokenTypeStr, "THEN") == 0) return THEN;
+    if (strcmp(tokenTypeStr, "ELSE") == 0) return ELSE;
+    if (strcmp(tokenTypeStr, "END") == 0) return END;
+    if (strcmp(tokenTypeStr, "REPEAT") == 0) return REPEAT;
+    if (strcmp(tokenTypeStr, "UNTIL") == 0) return UNTIL;
+    if (strcmp(tokenTypeStr, "READ") == 0) return READ;
+    if (strcmp(tokenTypeStr, "WRITE") == 0) return WRITE;
+    if (strcmp(tokenTypeStr, "ERROR") == 0) return ERROR;
+    if (strcmp(tokenTypeStr, "ENDOFILE") == 0) return ENDOFILE;
     return ERROR;  
 }
 
@@ -359,8 +359,11 @@ TokenList *filetoTokenList(char *path)
     
     char line[256];
     while (fgets(line, sizeof(line), file)) {
-        char* tokenTypeStr = strtok(line, ",");
-        char* tokenLiteral = strtok(NULL, "\n");
+        if (line[0] == '\n' || (line[0] == '\r' && line[1] == '\n')) {
+            continue;
+        }
+        char* tokenLiteral = strtok(line, ",");
+        char* tokenTypeStr = strtok(NULL, "\n");
 
         tokenList->tokens[i].type = getTokenType(tokenTypeStr);
         tokenList->tokens[i].Literal = strdup(tokenLiteral);

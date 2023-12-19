@@ -84,7 +84,7 @@ Parser *newParser(char *filename,bool choice);
 static void printSpaces(void);
 void printTree(Node *tree);
 
-void printDotTree(char *path, Node* tree);
+void printDotTree(char* path, Node* tree); 
 void printDotNode(FILE* dotFile, Node* tree);
 void printDotEdge(FILE* dotFile, Node* fromNode, Node* toNode);
 

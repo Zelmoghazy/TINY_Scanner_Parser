@@ -349,13 +349,13 @@ void printTree(Node *tree){
                     fprintf(stdout, "Repeat \n");
                     break;
                 case AssignStatement:
-                    fprintf(stdout, "Assign to: %s\n",tree->attr.name);
+                    fprintf(stdout, "Assign\n(%s)\n",tree->attr.name);
                     break;
                 case ReadStatement:
-                    fprintf(stdout, "Read: %s\n",tree->attr.name);
+                    fprintf(stdout, "Read\n(%s)\n",tree->attr.name);
                     break;
                 case WriteStatement:
-                    fprintf(stdout, "Write:\n");
+                    fprintf(stdout, "Write\n");
                     break;
                 default:
                     fprintf(stdout, "Error Statement node\n");
@@ -364,14 +364,14 @@ void printTree(Node *tree){
         }else if (tree->nodetype == ExpressionT){
             switch (tree->kind.exp) {
                 case OpT:
-                    fprintf(stdout, "Op: ");
-                    fprintf(stdout, tokentostring[tree->attr.op]);
+                    fprintf(stdout, "Op\n");
+                    fprintf(stdout,"(%s)\n",tokentostring[tree->attr.op]);
                     break;
                 case ConstT:
-                    fprintf(stdout, "const: %d\n",tree->attr.val);
+                    fprintf(stdout, "const\n(%d)\n",tree->attr.val);
                     break;
                 case IdT:
-                    fprintf(stdout, "Id: %s\n",tree->attr.name);
+                    fprintf(stdout, "Id\n(%s)\n",tree->attr.name);
                     break;
                 default:
                     fprintf(stdout, "Error Expression node\n");
@@ -388,74 +388,82 @@ void printTree(Node *tree){
     indentation -=2;
 }
 
-/* DOT Notation Stuff */
-void printDotTree(char *path, Node* tree) {
+/* AUTHOR : Abdo */
+void printDotTree(char* path, Node* tree)
+{
     FILE *dotFile = fopen(path, "w");
     fprintf(dotFile, "digraph AST {\n");
+    fprintf(dotFile, "margin=0;\n");  // Set margin to 0 to minimize space
+    fprintf(dotFile, "color=transparent;\n");  // Set color to transparent to make the border invisible
     fprintf(dotFile, "node [shape=box, style=filled, color=black, fillcolor=lightgray];\n");
-
-    fprintf(dotFile, "subgraph cluster_children {\n");
-    fprintf(dotFile, "rankdir=TB;\n");
-
+    // fprintf(dotFile, "subgraph cluster_children {\n");
+    // fprintf(dotFile, "rankdir=TB;\n");
     printDotNode(dotFile, tree);
-
     fprintf(dotFile, "}\n");
-
-    fprintf(dotFile, "}\n");
+    // fprintf(dotFile, "}\n");
 }
 
 
-void printDotNode(FILE* dotFile, Node* tree) {
+void printDotNode(FILE* dotFile, Node* tree) 
+{
+    fprintf(dotFile, "subgraph cluster_children%p {\n", (void*)tree);
+    fprintf(dotFile, "rankdir=TB;\n");
+
     fprintf(dotFile, "node%p [label=\"", (void*)tree);
 
-    if (tree->nodetype == StatementT) {
+    if(tree->nodetype == StatementT){
         switch (tree->kind.stmt) {
             case IfStatement:
-                fprintf(dotFile, "If");
+                fprintf(dotFile, "If \n");
                 break;
             case RepeatStatement:
-                fprintf(dotFile, "Repeat");
+                fprintf(dotFile, "Repeat \n");
                 break;
             case AssignStatement:
-                fprintf(dotFile, "Assign to: %s", tree->attr.name);
+                fprintf(dotFile, "Assign\n(%s)\n",tree->attr.name);
                 break;
             case ReadStatement:
-                fprintf(dotFile, "Read: %s", tree->attr.name);
+                fprintf(dotFile, "Read\n(%s)\n",tree->attr.name);
                 break;
             case WriteStatement:
-                fprintf(dotFile, "Write");
+                fprintf(dotFile, "Write\n");
                 break;
             default:
-                fprintf(dotFile, "Error Statement node");
+                fprintf(dotFile, "Error Statement node\n");
                 break;
         }
-    } else if (tree->nodetype == ExpressionT) {
+    }else if (tree->nodetype == ExpressionT){
         switch (tree->kind.exp) {
             case OpT:
-                fprintf(dotFile, "Op: %s", tokentostring[tree->attr.op]);
+                fprintf(dotFile, "Op\n");
+                fprintf(dotFile,"(%s)\n",tokentostring[tree->attr.op]);
                 break;
             case ConstT:
-                fprintf(dotFile, "Const: %d", tree->attr.val);
+                fprintf(dotFile, "const\n(%d)\n",tree->attr.val);
                 break;
             case IdT:
-                fprintf(dotFile, "Id: %s", tree->attr.name);
+                fprintf(dotFile, "Id\n(%s)\n",tree->attr.name);
                 break;
             default:
-                fprintf(dotFile, "Error Expression node");
+                fprintf(dotFile, "Error Expression node\n");
                 break;
         }
+    }else{
+        fprintf(dotFile, "Unknown node type\n");
     }
-
     fprintf(dotFile, "\", shape=");
-    
     // Set shape based on the node type
     if (tree->nodetype == StatementT) {
         fprintf(dotFile, "rectangle");
     } else if (tree->nodetype == ExpressionT) {
         fprintf(dotFile, "oval");
     }
-
     fprintf(dotFile, "];\n");
+    if (tree->sibling != NULL) {
+        printDotNode(dotFile, tree->sibling);
+        printDotEdge(dotFile, tree, tree->sibling);
+    }
+    fprintf(dotFile, "}\n");
 
     // Create a subgraph for children (downward layout)
     fprintf(dotFile, "subgraph cluster_children%p {\n", (void*)tree);
@@ -468,25 +476,114 @@ void printDotNode(FILE* dotFile, Node* tree) {
         }
     }
     fprintf(dotFile, "}\n");
-    fprintf(dotFile, "subgraph cluster_siblings%p {\n", (void*)tree);
-    fprintf(dotFile, "rankdir=LR;\n");
-
-    if (tree->sibling != NULL) {
-        printDotNode(dotFile, tree->sibling);
-        printDotEdge(dotFile, tree, tree->sibling);
-    }
-    fprintf(dotFile, "}\n");
 }
-
-
 
 void printDotEdge(FILE* dotFile, Node* fromNode, Node* toNode) {
     if (fromNode->sibling == toNode) {
-        fprintf(dotFile, "node%p -> node%p [dir=right];\n", (void*)fromNode, (void*)toNode);
+        fprintf(dotFile, "node%p -> node%p [dir=none] [constraint=false];\n", (void*)fromNode, (void*)toNode);
     } else {
         fprintf(dotFile, "node%p -> node%p [dir=down];\n", (void*)fromNode, (void*)toNode);
     }
 }
+
+/* DOT Notation Stuff */
+// void printDotTree(char *path, Node* tree) {
+//     FILE *dotFile = fopen(path, "w");
+//     fprintf(dotFile, "digraph AST {\n");
+//     fprintf(dotFile, "layout=neato;\n");
+//     fprintf(dotFile, "node [shape=box, style=filled, color=black, fillcolor=lightgray];\n");
+
+//     fprintf(dotFile, "rankdir=TB;\n");
+
+//     printDotNode(dotFile, tree);
+
+//     fprintf(dotFile, "}\n");
+
+// }
+
+// static int indent = 0;
+// static int counter = 0;
+
+// void printDotNode(FILE* dotFile, Node* tree) {
+//     indent+=2;
+//     while(tree != NULL){
+//         fprintf(dotFile, "node%p [color = \"#6c8ebf\",fillcolor=\"#dae8fc\" ,penwidth=3,fontname=\"times bold\",pos=\"%d,-%d!\",label=\"", (void*)tree,counter,indent);
+//         counter+=3;
+//     // edge [penwidth=3,color="#6c8ebf"]
+// 	// node [fontname="CMU Typewriter Text",fontcolor = black,fontsize = 24, penwidth=3,]
+//     // node [color = "#6c8ebf",fillcolor="#dae8fc", style=filled, shape = circle, fixedsize=true,width=0.5];
+//         if (tree->nodetype == StatementT) {
+//             switch (tree->kind.stmt) {
+//                 case IfStatement:
+//                     fprintf(dotFile, "If");
+//                     break;
+//                 case RepeatStatement:
+//                     fprintf(dotFile, "Repeat");
+//                     break;
+//                 case AssignStatement:
+//                     fprintf(dotFile, "Assign to: %s", tree->attr.name);
+//                     break;
+//                 case ReadStatement:
+//                     fprintf(dotFile, "Read: %s", tree->attr.name);
+//                     break;
+//                 case WriteStatement:
+//                     fprintf(dotFile, "Write");
+//                     break;
+//                 default:
+//                     fprintf(dotFile, "Error Statement node");
+//                     break;
+//             }
+//         } else if (tree->nodetype == ExpressionT) {
+//             switch (tree->kind.exp) {
+//                 case OpT:
+//                     fprintf(dotFile, "Op: %s", tokentostring[tree->attr.op]);
+//                     break;
+//                 case ConstT:
+//                     fprintf(dotFile, "Const: %d", tree->attr.val);
+//                     break;
+//                 case IdT:
+//                     fprintf(dotFile, "Id: %s", tree->attr.name);
+//                     break;
+//                 default:
+//                     fprintf(dotFile, "Error Expression node");
+//                     break;
+//             }
+//         }
+
+//         fprintf(dotFile, "\", shape=");
+        
+//         // Set shape based on the node type
+//         if (tree->nodetype == StatementT) {
+//             fprintf(dotFile, "rectangle");
+//         } else if (tree->nodetype == ExpressionT) {
+//             fprintf(dotFile, "oval");
+//         }
+
+//         fprintf(dotFile, "];\n");
+//         fprintf(dotFile, "edge [penwidth=3,color=\"#6c8ebf\"]");
+
+        
+//         for (size_t i = 0; i < 3; i++) {
+//             if (tree->children[i] != NULL) {
+//                 if(i==0 && tree->children[1] == NULL){
+//                     counter-=3;
+//                 }else if(i==0 && tree->children[1] != NULL){
+//                     counter -=4;
+//                 }else if(i==0 && tree->children[2] != NULL){
+//                     counter -=5;
+//                 }
+//                 printDotNode(dotFile, tree->children[i]);
+//                 fprintf(dotFile, "node%p -> node%p ;\n", (void*)tree, (void*)tree->children[i]);
+//             }
+//         }
+
+//         if (tree->sibling != NULL) {
+//             fprintf(dotFile, "node%p -> node%p ;\n", (void*)tree, (void*)tree->sibling);
+//         }
+//         tree = tree->sibling;
+//     }
+//     indent-=2;
+// }
 
 char* loadfile(char *path)
 {
