@@ -20,7 +20,7 @@ if z <8 then
 	read b
 else
 	read b;
-	if b = -1 then
+	if b = 1 then
 		write b*(x-y);
 		if x = 1 then
 			x:=x+1
