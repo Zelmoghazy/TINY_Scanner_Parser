@@ -11,14 +11,14 @@ Parser *newParser(char *filename, bool choice){
     Parser *parser = (Parser *)malloc(sizeof(Parser));
     assert(parser);
     if(choice){
-        char *source = loadfile(filename);
-        Lexer *L = newLexer(source);
-        parser->src.L = L;
-        parser->token = NextToken(L); // Initialize token to first token in input.
+        char *source   = loadfile(filename);
+        Lexer *L       = newLexer(source);
+        parser->src.L  = L;
+        parser->token  = NextToken(L); // Initialize token to first token in input.
         parser->choice = choice;
     }else{
         parser->src.TL = filetoTokenList(filename);
-        parser->token = NextTokenList(parser->src.TL);
+        parser->token  = NextTokenList(parser->src.TL);
         parser->choice = choice;
     }
     return parser;
@@ -138,7 +138,12 @@ Node *statement(Parser *parser)
             if(parser->choice){
                 parser->token = NextToken(parser->src.L);
             }else{
-                parser->token = NextTokenList(parser->src.TL);
+                if(parser->src.TL->currentToken < parser->src.TL->size){
+                    parser->token = NextTokenList(parser->src.TL);
+                }else{
+                    parser->token.type    = ENDOFILE;
+                    parser->token.Literal = "\0";
+                }
             }
             break;
     }
@@ -307,7 +312,12 @@ Node *factor(Parser *parser)
             if(parser->choice){
                 parser->token = NextToken(parser->src.L);
             }else{
-                parser->token = NextTokenList(parser->src.TL);
+                if(parser->src.TL->currentToken < parser->src.TL->size){
+                    parser->token = NextTokenList(parser->src.TL);
+                }else{
+                    parser->token.type    = ENDOFILE;
+                    parser->token.Literal = "\0";
+                }
             }
             break;
     }
@@ -617,11 +627,11 @@ char* loadfile(char *path)
 
 void fileParser(char *filename, char *dotfile, bool choice)
 {
-    Parser *parser = newParser(filename,choice);
+    Parser *parser   = newParser(filename,choice);
     Node *syntaxTree = parse(parser);
-    if(!choice){
-        printTokenList(parser->src.TL);
-    }
     printDotTree(dotfile,syntaxTree);
-    printTree(syntaxTree);
+    // if(!choice){
+    //     printTokenList(parser->src.TL);
+    // }
+    // printTree(syntaxTree);
 }

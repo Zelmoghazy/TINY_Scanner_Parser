@@ -304,7 +304,7 @@ TokenList *newTokenList(size_t size)
 {
     TokenList * toklist = (TokenList *) malloc(sizeof(TokenList));
     assert(toklist);
-    toklist->tokens = (Token*)malloc(size * sizeof(Token));
+    toklist->tokens = (Token*) malloc(size * sizeof(Token));
     assert(toklist->tokens);
     toklist->size = size;
     toklist->currentToken = 0;
@@ -352,6 +352,7 @@ TokenList *filetoTokenList(char *path)
             nooftokens++;
         }
     }
+
     /* Revert file pointer */
     fseek(file, 0, SEEK_SET);
 
@@ -359,7 +360,8 @@ TokenList *filetoTokenList(char *path)
     
     char line[256];
     while (fgets(line, sizeof(line), file)) {
-        if (line[0] == '\n' || (line[0] == '\r' && line[1] == '\n')) {
+        if (line[0] == '\n' || (line[0] == '\r' && line[1] == '\n') || line[0] == ' ') {
+            tokenList->size--;
             continue;
         }
         char* tokenLiteral = strtok(line, ",");
