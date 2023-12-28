@@ -338,14 +338,26 @@ Node *parse(Parser *parser)
 
 static size_t indentation = 0; 
 
-static void printSpaces(void)
+void printSpaces(void)
 {
     for(size_t i = 0; i < indentation; i++){
       fprintf(stdout, " ");
     }
 }
 
-void printTree(Node *tree){
+char *tokentoop(TokenType tok)
+{
+    if (tok == EQ   )  return "=";
+    if (tok == LT   )  return "<";
+    if (tok == PLUS )  return "+";
+    if (tok == MINUS)  return "-";
+    if (tok == MULT )  return "*";
+    if (tok == DIV  )  return "/";
+    return "Op";  
+}
+
+void printTree(Node *tree)
+{
     indentation+=2;
     while(tree != NULL)
     {
@@ -375,7 +387,7 @@ void printTree(Node *tree){
             switch (tree->kind.exp) {
                 case OpT:
                     fprintf(stdout, "Op\n");
-                    fprintf(stdout,"(%s)\n",tokentostring[tree->attr.op]);
+                    fprintf(stdout,"(%s)\n",tokentoop(tree->attr.op));
                     break;
                 case ConstT:
                     fprintf(stdout, "const\n(%d)\n",tree->attr.val);
@@ -403,7 +415,7 @@ void printDotTree(char* path, Node* tree)
 {
     FILE *dotFile = fopen(path, "w");
     fprintf(dotFile, "digraph AST {\n");
-    fprintf(dotFile, "margin=0;\n");  // Set margin to 0 to minimize space
+    fprintf(dotFile, "margin=0;\n");           // Set margin to 0 to minimize space
     fprintf(dotFile, "color=transparent;\n");  // Set color to transparent to make the border invisible
     fprintf(dotFile, "node [shape=box, style=filled, color=black, fillcolor=lightgray];\n");
     // fprintf(dotFile, "subgraph cluster_children {\n");
@@ -412,7 +424,6 @@ void printDotTree(char* path, Node* tree)
     fprintf(dotFile, "}\n");
     // fprintf(dotFile, "}\n");
 }
-
 
 void printDotNode(FILE* dotFile, Node* tree) 
 {
@@ -446,7 +457,7 @@ void printDotNode(FILE* dotFile, Node* tree)
         switch (tree->kind.exp) {
             case OpT:
                 fprintf(dotFile, "Op\n");
-                fprintf(dotFile,"(%s)\n",tokentostring[tree->attr.op]);
+                fprintf(dotFile,"(%s)\n",tokentoop(tree->attr.op));
                 break;
             case ConstT:
                 fprintf(dotFile, "const\n(%d)\n",tree->attr.val);
@@ -546,7 +557,7 @@ void printDotEdge(FILE* dotFile, Node* fromNode, Node* toNode) {
 //         } else if (tree->nodetype == ExpressionT) {
 //             switch (tree->kind.exp) {
 //                 case OpT:
-//                     fprintf(dotFile, "Op: %s", tokentostring[tree->attr.op]);
+//                     fprintf(dotFile, "Op: %s", tokentoop(tree->attr.op));
 //                     break;
 //                 case ConstT:
 //                     fprintf(dotFile, "Const: %d", tree->attr.val);
